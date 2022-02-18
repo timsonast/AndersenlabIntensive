@@ -1,4 +1,4 @@
-package HW_1;
+package ru.timson;
 
 import java.util.*;
 import java.util.List;
@@ -295,17 +295,85 @@ public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
 
     @Override
     public Iterator<E> iterator() {
-        return null;
+        return new Itr();
     }
 
     @Override
     public ListIterator<E> listIterator() {
-        return null;
+        return new ListItr(0);
     }
 
     @Override
     public ListIterator<E> listIterator(int index) {
-        return null;
+        rangeCheck(index);
+        return new ListItr(index);
+    }
+
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+
+        if (!(o instanceof List)) {
+            return false;
+        }
+
+        boolean equal = (o.getClass() == MyArrayList.class)
+                ? equalsArrayList((MyArrayList<?>) o)
+                : equalsRange((List<?>) o, 0, size);
+
+        return equal;
+    }
+
+    boolean equalsRange(List<?> other, int from, int to) {
+        final Object[] es = array;
+        if (to > es.length) {
+            throw new ConcurrentModificationException();
+        }
+        var oit = other.iterator();
+        for (; from < to; from++) {
+            if (!oit.hasNext() || !Objects.equals(es[from], oit.next())) {
+                return false;
+            }
+        }
+        return !oit.hasNext();
+    }
+
+    private boolean equalsArrayList(MyArrayList<?> other) {
+        final int s = size;
+        boolean equal;
+        if (equal = (s == other.size)) {
+            final Object[] otherEs = other.array;
+            final Object[] es = array;
+            if (s > es.length || s > otherEs.length) {
+                throw new ConcurrentModificationException();
+            }
+            for (int i = 0; i < s; i++) {
+                if (!Objects.equals(es[i], otherEs[i])) {
+                    equal = false;
+                    break;
+                }
+            }
+        }
+        return equal;
+    }
+
+    public int hashCode() {
+        int hash = hashCodeRange(0, size);
+        return hash;
+    }
+
+    int hashCodeRange(int from, int to) {
+        final Object[] es = array;
+        if (to > es.length) {
+            throw new ConcurrentModificationException();
+        }
+        int hashCode = 1;
+        for (int i = from; i < to; i++) {
+            Object e = es[i];
+            hashCode = 31 * hashCode + (e == null ? 0 : e.hashCode());
+        }
+        return hashCode;
     }
 
     private void rangeCheck(int index){
