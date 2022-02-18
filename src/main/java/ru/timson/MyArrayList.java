@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
 
     private static final int DEFAULT_CAPACITY = 10;
-    Object[] array;
+    private Object[] array;
     private static final Object[] ARRAY_NULL_CAPACITY = {};
     private int size;
 
@@ -134,12 +134,12 @@ public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
     @Override
     public boolean add(E object) {
         if(size == 0){
-            this.array[size] = object;
+            array[size] = object;
             size++;
             return true;
         } else {
             changeOfSize(size);
-            this.array[size++] = object;
+            array[size++] = object;
             return true;
         }
     }
@@ -158,8 +158,8 @@ public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
         rangeCheck(index);
         E oldObject = (E) array[index];
         if(size > index){
-            System.arraycopy(array, index + 1,array,index, size - 1);
             array[index] = null;
+            System.arraycopy(array, index + 1,array,index, size - 1);
             size--;
         }
         return oldObject;
@@ -386,6 +386,15 @@ public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
         if (size >= DEFAULT_CAPACITY) {
             Arrays.copyOf(array,size + 10);
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < size; i++) {
+            sb.append(array[i] + " ");
+        }
+        return sb.toString();
     }
 
     static <E> E elementAt(Object[] es, int index) {
