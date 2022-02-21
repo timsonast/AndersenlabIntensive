@@ -1,16 +1,30 @@
 package ru.timson;
 
+
 import java.util.*;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
+/**
+ *
+ * @author Timur Malik
+ * класс написанный в рамках интенсива по теме коллекции. А так же реализация quicksort
+ */
 
+public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable {
+    /**
+     * Параметры для создания MyArrayList
+     * @param size - текущая заполненность массива(колличество элементов)
+     */
     private static final int DEFAULT_CAPACITY = 10;
     private Object[] array;
     private static final Object[] ARRAY_NULL_CAPACITY = {};
     private int size;
 
+    /**
+     * Конструкт для создания MyArrayList с определённым размером
+     * @param startingCapacity - стартовый размер MyArrayList
+     */
     public MyArrayList(int startingCapacity){
         if(startingCapacity > 0){
             this.array = new Object[startingCapacity];
@@ -21,10 +35,16 @@ public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
         }
     }
 
+    /**
+     * Default конструктор MyArrayList
+     */
     public MyArrayList() {
         this.array = new Object[DEFAULT_CAPACITY];
     }
 
+    /**
+     * Конструктор для создания MyArrayList с добавлением в него сразу другой коллекции.
+     */
     public MyArrayList(Collection<? extends E> collection){
         Object[] objects = collection.toArray();
         if((size = objects.length) != 0) {
@@ -38,27 +58,47 @@ public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
         }
     }
 
+    /**
+     * Метод для уменьшения размера массива, до уровня его длины
+     */
     public void trimToSize() {
         if(size < array.length){
             array = (size == 0) ? ARRAY_NULL_CAPACITY : Arrays.copyOf(array, size);
         }
     }
 
+    /**
+     * Метод для установления минимального размера массива
+     * @param capacity - число которое будет установленно в качестве минимального размера массива
+     */
     public void ensureMinCapacity(int capacity){
         if(size < capacity && DEFAULT_CAPACITY < capacity && Integer.MAX_VALUE - 8 > capacity && capacity > 0) {
             array = Arrays.copyOf(array,capacity);
         }
     }
+
+    /**
+     * Метод вернёт текущую длину MyArrayList
+     */
     @Override
     public int size() {
         return this.size;
     }
 
+    /**
+     * Метод для проверки пустой MyArrayList
+     * @return true - если в нём нет элементов, false - если в нём есть элементы
+     */
     @Override
     public boolean isEmpty() {
         return size == 0;
     }
 
+    /**
+     * Метод проверяет есть ли данный объект в MyArrayList или нет
+     * @param object - объект который будет искать метод
+     * @return true - если такой объект есть, false - если такого объекта нет
+     */
     @Override
     public boolean contains(Object object) {
         return indexOf(object) >= 0;
@@ -79,9 +119,14 @@ public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
                 }
             }
         }
-        return -1;
+        throw new NoSuchElementException();
     }
 
+    /**
+     * Метод возвращает индекс объекта который был последний добавлен в MyArrayList
+     * @param object - объект который будет искать метод
+     * @return индекс объекта если такой есть в MyArrayList, в противном случае будет выброшено исключение
+     */
     @Override
     public int lastIndexOf(Object object) {
         Object[] objects = array;
@@ -92,14 +137,17 @@ public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
                 }
             }
         } else {
-            for (int i = 0; i <= size; i--) {
+            for (int i = size; i >= 0; i--) {
                 if (object.equals(objects[i])) {
                     return i;
                 }
             }
-        } return -1;
+        } throw new NoSuchElementException();
     }
 
+    /**
+     * Метод клонирует MyArrayList в другой MyArrayList
+     */
     public Object clone() {
         try {
             MyArrayList<?> myArrayList = (MyArrayList<?>) super.clone();
@@ -110,27 +158,50 @@ public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
         }
     }
 
+    /**
+     * Метод конвертирует MyArrayList в массив
+     */
     @Override
     public Object[] toArray() {
         return Arrays.copyOf(array,size);
     }
 
+    /**
+     * Метод возвращает объект по указанному индексу
+     * @param index - индекс элемента в MyArrayList
+     * @return объект если такой есть по указанному инексу
+     */
     E object(int index){
+        rangeCheck(index);
         return (E) array[index];
     }
 
+    /**
+     * Метод возвращает объект по указанному индексу
+     * @param index - индекс элемента в MyArrayList
+     * @return объект если такой есть по указанному инексу
+     */
     @Override
     public E get(int index) {
         rangeCheck(index);
         return (E) array[index];
     }
 
+    /**
+     * Метод заменяет объект по указанному индексу
+     * @param index - индекс в который будет вставлен объект
+     * @param element - объект который будет вставлен
+     */
     @Override
     public E set(int index, E element) {
         rangeCheck(index);
         return (E) (array[index] = element);
     }
 
+    /**
+     * Метод добавления объекта, объект вставляется в конец списка
+     * @param object - объект который будет вставлен в MyArrayList
+     */
     @Override
     public boolean add(E object) {
         if(size == 0){
@@ -144,6 +215,11 @@ public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
         }
     }
 
+    /**
+     * Метод добавления объекта, объект вставляется в указанный индекс. Вся часть которая идёт после индекса
+     * сдвигается вправо на один элемент
+     * @param object - объект который будет вставлен в MyArrayList
+     */
     @Override
     public void add(int index, E object) {
         rangeCheck(index);
@@ -153,6 +229,10 @@ public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
         this.array[index] = object;
     }
 
+    /**
+     * Метод удаляет объект по указанному индексу. Все элементы которые были слева, сдвигаются на один шаг влево
+     * @param index - индекс из которого будет удалён объект
+     */
     @Override
     public E remove(int index) {
         rangeCheck(index);
@@ -165,6 +245,9 @@ public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
         return oldObject;
     }
 
+    /**
+     * Метод удаляет указанный объект, если такой есть в MyArrayList
+     */
     @Override
     public boolean remove(Object object) {
         if(object == null){
@@ -191,6 +274,9 @@ public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
         return false;
     }
 
+    /**
+     * Метод очищает весь MyArrayList. Размер MyArrayList не изменяется
+     */
     @Override
     public void clear() {
         for (int j = size, i = size = 0; i < j ; i++) {
@@ -198,6 +284,10 @@ public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
         }
     }
 
+    /**
+     * Метод добавляет все элементы указанной коллекции в конец списка
+     * @param collection - коллекция которая будет добавленна
+     */
     @Override
     public boolean addAll(Collection<? extends E> collection) {
         Object[] objects = collection.toArray();
@@ -205,12 +295,18 @@ public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
             return false;
         }
         if(objects.length > 0){
-            System.arraycopy(objects,0,array,0,objects.length);
             size = size + objects.length;
+            changeOfSize(size);
+            System.arraycopy(objects,0,array,0,objects.length);
         }
         return true;
     }
 
+    /**
+     * Метод добавляет все элементы указанной коллекции с указанного индекса, все элементы MyArrayList сдвигаются вправо
+     * @param collection - коллекция которая будет добавленна
+     * @param index - индекс с которого будет добавленна коллекция
+     */
     @Override
     public boolean addAll(int index, Collection<? extends E> collection) {
         Object[] objects = collection.toArray();
@@ -227,19 +323,24 @@ public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
         return true;
     }
 
-
+    /**
+     * Метод удаляет всю коллекцию
+     */
     @Override
     public boolean removeAll(Collection<?> collection) {
-        return batchRemove(collection, true, 0, size);
+        int newSize = size;
+        size = 0;
+        return batchRemove(collection, true, 0, newSize);
     }
 
     @Override
     public boolean retainAll(Collection<?> collection) {
-        return batchRemove(collection, true, 0, size);
+        int newSize = size;
+        size = 0;
+        return batchRemove(collection, true, 0, newSize);
     }
 
-    boolean batchRemove(Collection<?> c, boolean complement,
-                        final int from, final int end) {
+    boolean batchRemove(Collection<?> c, boolean complement, final int from, final int end) {
         Objects.requireNonNull(c);
         final Object[] es = array;
         int r;
@@ -264,6 +365,9 @@ public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
         return true;
     }
 
+    /**
+     * Метод проверяет есть данная коллекция внутри MyArrayList
+     */
     @Override
     public boolean containsAll(Collection<?> collection) {
         Objects.requireNonNull(collection);
@@ -274,6 +378,9 @@ public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
         return false;
     }
 
+    /**
+     * Метод копирует данные из листа в массив
+     */
     @Override
     public <T> T[] toArray(T[] a) {
         if (a.length < size)
@@ -284,6 +391,9 @@ public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
         return a;
     }
 
+    /**
+     * Получение нового MyArrayList,который будет создан на основе подмассива
+     */
     @Override
     public List<E> subList(int fromIndex, int toIndex) {
         rangeCheck(fromIndex);
@@ -292,6 +402,10 @@ public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
         System.arraycopy(array,fromIndex,a,0,toIndex-fromIndex);
         return new ArrayList<E>(List.of(a));
     }
+
+    /**
+     *Методы Iterator нужны для того чтобы пройтись по всем элементам MyArrayList
+     */
 
     @Override
     public Iterator<E> iterator() {
@@ -339,6 +453,9 @@ public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
         return !oit.hasNext();
     }
 
+    /**
+     * Метод сравнивает два MyArrayList, сравнение идёт по содержимому листов
+     */
     private boolean equalsArrayList(MyArrayList<?> other) {
         final int s = size;
         boolean equal;
@@ -376,18 +493,27 @@ public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
         return hashCode;
     }
 
+    /**
+     * Метод для проверки корректности введённого индекса
+     */
     private void rangeCheck(int index){
         if(size <= index){
             throw new IndexOutOfBoundsException("Неверный размер листа");
         }
     }
 
+    /**
+     * Метод проверяет размер MyArrayList для того чтобы убедиться хватит ли места для вставки элемента(ов).
+     */
     private void changeOfSize(int size){
         if (size >= DEFAULT_CAPACITY) {
             Arrays.copyOf(array,size + 10);
         }
     }
 
+    /**
+     * Метод нужен для приведения MyArrayList к String
+     */
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -407,6 +533,9 @@ public class MyArrayList<E> implements List<E>, RandomAccess, Cloneable{
             es[i] = null;
     }
 
+    /**
+     * Этот класс нужен для реализации методов Iterator
+     */
     private class Itr implements Iterator<E> {
         int cursor;
         int lastRet = -1;

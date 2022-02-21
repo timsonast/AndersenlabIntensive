@@ -1,61 +1,42 @@
 package ru.timson;
 
-import java.util.Comparator;
-import java.util.Objects;
+import java.util.*;
 
-public class SortList {
+public class SortList<E> {
 
-    public static <T extends Comparable<? super T>> void quickSort(MyArrayList<T> myArrayList) {
+    public static <E> List<E> quickSort(List<E> array, Comparator<E> sort, int  start, int end){
 
-        sort(myArrayList.toArray(),0,myArrayList.toArray().length-1);
-    }
 
-    private static void sort(Object[] objects, int low, int high){
-        Comparator<Object> comparator = new Comparator<Object>() {
-            @Override
-            public int compare(Object o1, Object o2) {
-                return ((Comparable<Object>)o1).compareTo(o2);
-            }
-        };
-        if (objects.length == 0)
-            return;//завершить выполнение если длина массива равна 0
+        if(start>=0 && start<=array.size() && end>=0 && end<=array.size()){
+            E middleElement = array.get((start+end)/2);
+            int i = start, j = end;
 
-        if (low >= high)
-            return;//завершить выполнение если уже нечего делить
+            while (i <= j) {
 
-        // выбрать опорный элемент
-        int middle = low + (high - low) / 2;
-        Object opora = objects[middle];
+                while (sort.compare(array.get(i),middleElement) < 0) {
+                    i++;
+                }
+                while (sort.compare(array.get(j),middleElement) > 0) {
+                    j--;
+                }
 
-        // разделить на подмассивы, который больше и меньше опорного элемента
-        int i = low, j = high;
-
-        while (i <= j) {
-            int k = comparator.compare(objects[low],objects[middle]);
-            while (k < 0) {
-                k++;
-                i++;
+                if (i <= j) {
+                    E temp = array.get(i);
+                    array.set(i,array.get(j));
+                    array.set(j,temp);
+                    i++;
+                    j--;
+                }
             }
 
-            while (k > 0) {
-                k--;
-                j--;
-            }
+            if (start < j)
+                quickSort(array,sort, start, j);
+            if (end > i)
+                quickSort(array,sort, i, end);
 
-            if (i <= j) {//меняем местами
-                Object temp = objects[i];
-                objects[i] = objects[j];
-                objects[j] = temp;
-                i++;
-                j--;
-            }
+            return array;
+        }else{
+            throw new NoSuchElementException();
         }
-
-        // вызов рекурсии для сортировки левой и правой части
-        if (low < j)
-            sort(objects, low, j);
-
-        if (high > i)
-            sort(objects, i, high);
     }
 }
